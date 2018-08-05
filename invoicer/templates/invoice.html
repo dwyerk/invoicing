@@ -1,0 +1,70 @@
+{% extends "main.html" %}
+{% block content %}
+<div class="row mb-3">
+	<div class="col-sm">
+		<div>{{ company.address }}</div>
+		<div>Phone: {{ company.phone }}</div>
+	</div>
+	<div class="col-sm">
+		<div class="float-right">DATE: {{ processing_date.strftime('%Y-%m-%d %H:%M') }}</div>
+	</div>
+</div>
+<div class="row mb-3">
+	<div class="col-sm">
+		<h3>BILL TO</h3>
+		<div>{{ payer.name }}</div>
+		<div>{{ payer.address }}</div>
+		<div>Phone: {{ payer.phone }}</div>
+	</div>
+</div>
+<div class="row mb-3">
+	<div class="col-md">
+		<table class="table table-bordered table-sm">
+			<thead class="thead-dark">
+				<tr>
+					<th scope="col" class="text-center">Contract</th>
+					<th scope="col" class="text-center">Date</th>
+					<th scope="col" class="text-center">Hours</th>
+					<th scope="col" class="text-center">Amount</th></tr>
+			</thead>
+			<tbody class="table-striped">
+				{% if weekly %}
+				{% for week, item in billable_weeks.items() %}
+				<tr>
+					<td>{{ item['contract'] }}</td>
+					<td>Week of {{ item['start_date'] }} - {{ item['end_date'] }}</td>
+					<td class="text-right">{{ item['hours'] }}</td>
+					<td class="text-right">{{ "$%.2f"|format(item['amount']) }}</td>
+				</tr>
+				{% endfor %}
+				{% else %}
+				{% for item in billable_days %}
+				<tr>
+					<td>{{ item['contract'] }}</td>
+					<td>{{ item['date'] }}</td>
+					<td class="text-right">{{ item['hours'] }}</td>
+					<td class="text-right">{{ "$%.2f"|format(item['amount']) }}</td>
+				</tr>
+				{% endfor %}
+				{% endif %}
+			</tbody>
+			<tfoot>
+				<tr class="font-weight-bold">
+					<td></td>
+					<td >TOTAL</td>
+					<td class="text-right">{{ total_hours }}</td>
+					<td class="text-right">{{ "$%.2f"|format(total_due) }}</td>
+				</tr>
+			</tfoot>
+		</table>
+	</div>
+</div>
+<div class="row mb-3">
+	<div class="col-sm">
+		<h3>Comments</h3>
+		{% for item in billable_days %}
+			<p>{{ item['notes'] }}</p>
+		{% endfor %}
+	</div>
+</div>
+{% endblock content %}

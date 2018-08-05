@@ -1,0 +1,17 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+google-api-python-client = "*"
+"oauth2client" = "*"
+"Jinja2" = "*"
+pdfkit = "*"
+pyyaml = "*"
+
+[dev-packages]
+jupyter = "*"
+
+[requires]
+python_version = "3.7"
