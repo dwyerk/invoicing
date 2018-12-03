@@ -1,0 +1,19 @@
+render:
+  company:
+    !company
+      address: YOUR ADDRESS
+      name: YOUR NAME
+      phone: YOUR NUMBER
+      rate: YOUR RATE
+
+  payer:
+    !payer
+      address: THEIR ADDRESS
+      name: THEIR NAME
+      phone: THEIR NUMBER
+
+  weekly: True
+
+download:
+  spreadsheet_id: $GOOGLE_SHEET_ID_HERE
+  range: Log
