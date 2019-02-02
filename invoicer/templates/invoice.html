@@ -17,6 +17,7 @@
 		<div>Phone: {{ payer.phone }}</div>
 	</div>
 </div>
+<h2>BILLABLE HOURS</h2>
 <div class="row mb-3">
 	<div class="col-md">
 		<table class="table table-bordered table-sm">
@@ -51,14 +52,52 @@
 			<tfoot>
 				<tr class="font-weight-bold">
 					<td></td>
-					<td >TOTAL</td>
+					<td >SUB TOTAL</td>
 					<td class="text-right">{{ total_hours }}</td>
-					<td class="text-right">{{ "$%.2f"|format(total_due) }}</td>
+					<td class="text-right">{{ "$%.2f"|format(total_billable_due) }}</td>
 				</tr>
 			</tfoot>
 		</table>
 	</div>
 </div>
+{% if expenses %}
+<h2>EXPENSES</h2>
+<div class="row mb-3">
+	<div class="col-md">
+		<table class="table table-bordered table-sm">
+			<thead class="thead-dark">
+				<tr>
+					<th scope="col" class="text-center">Contract</th>
+					<th scope="col" class="text-center">Date</th>
+					<th scope="col" class="text-center">Description</th>
+					<th scope="col" class="text-center">Amount</th></tr>
+			</thead>
+			<tbody class="table-striped">
+				{% for item in expenses %}
+				<tr>
+					<td>{{ item['contract'] }}</td>
+					<td>{{ item['date'] }}</td>
+					<td class="text-right">{{ item['description'] }}</td>
+					<td class="text-right">{{ "$%.2f"|format(item['amount']) }}</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+			<tfoot>
+				<tr class="font-weight-bold">
+					<td></td>
+					<td >SUB TOTAL</td>
+					<td class="text-right"></td>
+					<td class="text-right">{{ "$%.2f"|format(total_expenses) }}</td>
+				</tr>
+			</tfoot>
+		</table>
+	</div>
+</div>
+{% endif %}
+<div class="row mb-3">
+	<div class="col-md"><h1 class="text-right font-weight-bold">TOTAL DUE: {{ "$%.2f"|format(total_due) }}</h1></div>
+</div>
+
 <div class="row mb-3">
 	<div class="col-sm">
 		<h3>Comments</h3>

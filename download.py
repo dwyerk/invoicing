@@ -40,7 +40,9 @@ def main(output, spreadsheet_id, range_name):
                     except ValueError:
                         pass
                     newrow.append(field)
-                records.append(dict(zip(header, newrow)))
+                rec = dict(zip(header, newrow))
+                rec['type'] = range_name
+                records.append(rec)
 
         json.dump(records, output, indent=4)
 
@@ -49,7 +51,10 @@ if __name__ == '__main__':
     with open('config.yml') as configf:
         config = yaml.load(configf)
     spreadsheet_id = config['download']['spreadsheet_id']
-    range_name = config['download']['range']
 
+    timesheet_range = config['download']['timesheet_range']
+    expenses_range = config['download']['expenses_range']
     with open(sys.argv[1], 'w') as output:
-        main(output, spreadsheet_id, range_name)
+        main(output, spreadsheet_id, timesheet_range)
+    with open(sys.argv[2], 'w') as output:
+        main(output, spreadsheet_id, expenses_range)

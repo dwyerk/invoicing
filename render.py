@@ -17,12 +17,15 @@ env = Environment(
 
 template = env.get_template('invoice.html')
 
-def main(input_file, date_start, date_end, output_file, company, payer, weekly):
+def main(timesheet_file, expenses_file, date_start, date_end, output_file, company, payer, weekly):
 
     billable_days = []
     billable_weeks = {}
-    with open(input_file) as jsondata:
+    expenses = []
+    with open(timesheet_file) as jsondata, open(expenses_file) as expensesdata:
+
         records = json.load(jsondata)
+        records += json.load(expensesdata)
         for record in records:
             date_s = record['date']
             date = datetime.datetime.strptime(date_s, '%Y/%m/%d')
@@ -47,18 +50,24 @@ def main(input_file, date_start, date_end, output_file, company, payer, weekly):
 
 
             if date >= date_start and date <= date_end:
-                record['amount'] = record['hours'] * company.rate
-                billable_days.append(record)
-                w = billable_weeks.setdefault(first_day_of_week_s, {'amount': 0, 'hours': 0})
-                w['amount'] += record['amount']
-                w['hours'] += record['hours']
-                w['contract'] = record['contract']
-                w['start_date'] = first_day_of_week_s
-                w['end_date'] = last_day_of_week_s
-
+                if record['type'] == 'Log':
+                    record['amount'] = record['hours'] * company.rate
+                    billable_days.append(record)
+                    w = billable_weeks.setdefault(first_day_of_week_s, {'amount': 0, 'hours': 0})
+                    w['amount'] += record['amount']
+                    w['hours'] += record['hours']
+                    w['contract'] = record['contract']
+                    w['start_date'] = first_day_of_week_s
+                    w['end_date'] = last_day_of_week_s
+                elif record['type'] == 'Expenses':
+                    expenses.append(record)
+                else:
+                    raise Exception('Unknown record type: {}'.format(record['type']))
 
     total_hours = sum([day['hours'] for day in billable_days])
-    total_due = sum([day['amount'] for day in billable_days])
+    total_billable_due = sum([day['amount'] for day in billable_days])
+    total_expenses = sum([exp['amount'] for exp in expenses])
+    total_due = total_billable_due + total_expenses
 
     # this currently needs to be in the same directory as the other source files
     tmp = 'invoicer/templates/render-out.html'
@@ -71,15 +80,19 @@ def main(input_file, date_start, date_end, output_file, company, payer, weekly):
             billable_weeks=billable_weeks,
             processing_date=datetime.datetime.now(),
             total_hours=total_hours,
+            total_billable_due=total_billable_due,
             total_due=total_due,
-            weekly=weekly
+            weekly=weekly,
+            expenses=expenses,
+            total_expenses=total_expenses
             ))
 
     pdfkit.from_file(tmp, output_file, options={'minimum-font-size': '23'})
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
-    ap.add_argument('input_file')
+    ap.add_argument('timesheet_file')
+    ap.add_argument('expenses_file')
     ap.add_argument('date_start')
     ap.add_argument('date_end')
     ap.add_argument('output_file')
@@ -93,5 +106,5 @@ if __name__ == '__main__':
     company = config['render']['company']
     payer = config['render']['payer']
     weekly = config['render']['weekly']
-    main(args.input_file, date_start, date_end, args.output_file, company, payer, weekly)
+    main(args.timesheet_file, args.expenses_file, date_start, date_end, args.output_file, company, payer, weekly)
     print("Wrote pdf to: {}".format(args.output_file))
