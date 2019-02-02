@@ -8,7 +8,7 @@ google-api-python-client = "*"
 "oauth2client" = "*"
 "Jinja2" = "*"
 pdfkit = "*"
-pyyaml = "*"
+pyyaml = ">=4.2b1"
 
 [dev-packages]
 jupyter = "*"
