@@ -17,3 +17,4 @@ render:
 download:
   spreadsheet_id: $GOOGLE_SHEET_ID_HERE
   range: Log
+  range: Expenses
